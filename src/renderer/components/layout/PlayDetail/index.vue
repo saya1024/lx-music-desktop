@@ -15,6 +15,7 @@ transition(enter-active-class="animated slideInRight" leave-active-class="animat
             p {{ $t('player__music_name') }}{{ musicInfo.name }}
             p {{ $t('player__music_singer') }}{{ musicInfo.singer }}
             p(v-if="musicInfo.album") {{ $t('player__music_album') }}{{ musicInfo.album }}
+            p(v-if="currentLocalFilePath" :class="$style.localPath") {{ $t('player__local_file') }}{{ currentLocalFilePath }}
 
       transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
         LyricPlayer(v-if="visibled")
@@ -35,6 +36,7 @@ import {
   musicInfo,
   playMusicInfo,
 } from '@renderer/store/player/state'
+import { currentLocalFilePath } from '@renderer/core/music/aiPlayStatus'
 import {
   setShowPlayerDetail,
   setShowPlayComment,
@@ -104,6 +106,7 @@ export default {
       isShowPlayerDetail,
       isShowPlayComment,
       musicInfo,
+      currentLocalFilePath,
       hide,
       handleContextMenu,
       hideComment,
@@ -265,7 +268,11 @@ export default {
     overflow-wrap: break-word;
   }
 }
-
+.localPath {
+  opacity: .7;
+  font-size: 12px;
+  word-break: break-all;
+}
 
 .comment {
   position: absolute;

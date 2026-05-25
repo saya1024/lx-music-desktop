@@ -95,6 +95,19 @@ export default () => {
     sync.client.host = host
   })
 
+  watch(() => [appSetting['common.localMusicPath'], appSetting['download.fileName']], ([newPath, format]) => {
+    if (newPath) {
+      import('@renderer/core/music/aiLocalMusicScanner').then(({ scanLocalMusicDir, clearFileIndex }) => {
+        clearFileIndex()
+        scanLocalMusicDir(newPath, format)
+      })
+    } else {
+      import('@renderer/core/music/aiLocalMusicScanner').then(({ clearFileIndex }) => {
+        clearFileIndex()
+      })
+    }
+  })
+
   watch(() => appSetting['network.proxy.enable'], enable => {
     proxy.enable = enable
   })

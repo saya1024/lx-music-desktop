@@ -1,6 +1,6 @@
-// if (targetSong.key) { // 如果是已下载的歌曲
-//   const filePath = path.join(appSetting['download.savePath'], targetSong.metadata.fileName)
-//   // console.log(filePath)
+import { encodePath } from '@common/utils/common'
+import { appSetting } from '@renderer/store/setting'
+import { findMatchInIndex } from './aiLocalMusicScanner'
 
 import {
   getMusicUrl as getOnlineMusicUrl,
@@ -32,6 +32,10 @@ export const getMusicUrl = async({
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
   allowToggleSource?: boolean
 }): Promise<string> => {
+  if (!('progress' in musicInfo) && musicInfo.source != 'local' && !isRefresh && appSetting['common.localMusicPath']) {
+    const localPath = findMatchInIndex(musicInfo.name, musicInfo.singer)
+    if (localPath) return encodePath(localPath)
+  }
   if ('progress' in musicInfo) {
     return getDownloadMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource })
   } else if (musicInfo.source == 'local') {

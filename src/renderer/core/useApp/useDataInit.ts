@@ -56,5 +56,10 @@ export default () => {
     await initPrevPlayInfo().catch(err => {
       log.error(err)
     }) // 初始化上次的歌曲播放信息
+
+    if (appSetting['common.localMusicPath']) {
+      const { scanLocalMusicDir } = await import('@renderer/core/music/aiLocalMusicScanner')
+      scanLocalMusicDir(appSetting['common.localMusicPath'], appSetting['download.fileName'])
+    }
   }
 }

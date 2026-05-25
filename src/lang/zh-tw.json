@@ -224,6 +224,7 @@
   "player__getting_url_delay_retry": "服務繁忙，{time} 秒後重試...",
   "player__hide_detail_tip": "隱藏詳情頁（介面內右鍵雙擊可快速隱藏詳情頁）",
   "player__loading": "音樂載入中...",
+  "player__local_file": "本地檔案：",
   "player__music_album": "專輯：",
   "player__music_name": "標題：",
   "player__music_singer": "演出者：",
