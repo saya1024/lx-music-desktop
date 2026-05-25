@@ -1,8 +1,8 @@
 import { DOWNLOAD_STATUS, QUALITYS } from '@common/constants'
-import { filterFileName } from '@common/utils/common'
 import { buildLyrics } from './lrcTool'
 import fs from 'fs'
 import { clipFileNameLength, clipNameLength, formatMusicName } from '@common/utils/tools'
+import { replaceInvalidFileNameChars } from '@common/utils/aiFileName'
 
 /**
  * 保存歌词文件
@@ -91,7 +91,7 @@ export const createDownloadInfo = (musicInfo: LX.Music.MusicInfoOnline, type: LX
       ext,
       filePath: '',
       listId,
-      fileName: filterFileName(`${clipFileNameLength(formatMusicName(fileName, musicInfo.name, clipNameLength(musicInfo.singer)))}.${ext}`),
+      fileName: replaceInvalidFileNameChars(`${clipFileNameLength(formatMusicName(fileName, musicInfo.name, clipNameLength(musicInfo.singer)))}.${ext}`),
     },
   }
   // downloadInfo.metadata.filePath = joinPath(savePath, downloadInfo.metadata.fileName)
