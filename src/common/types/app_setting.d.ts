@@ -84,6 +84,11 @@ declare global {
       'common.showChangeLog': boolean
 
       /**
+       * 本地音乐目录路径
+       */
+      'common.localMusicPath': string
+
+      /**
        * 启动时自动播放歌曲
        */
       'player.startupAutoPlay': boolean

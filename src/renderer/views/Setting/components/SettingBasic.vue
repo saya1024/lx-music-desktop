@@ -105,6 +105,14 @@ dd
       id="setting_basic_playbar_progress_style_full" name="setting_basic_playbar_progress_style"
       need :model-value="appSetting['common.playBarProgressStyle']" value="full" :label="$t('setting__basic_playbar_progress_style_full')" @update:model-value="updateSetting({'common.playBarProgressStyle': $event})")
 
+dd(:aria-label="$t('setting__basic_local_music_path_title')")
+  h3#basic_local_music_path {{ $t('setting__basic_local_music_path') }}
+  div
+    .p
+      | {{ $t('setting__basic_local_music_path_label') }}
+      span.auto-hidden.hover(:class="$style.savePath" :aria-label="$t('setting__basic_local_music_path_open_label')" @click="openDirInExplorer(appSetting['common.localMusicPath'])") {{ appSetting['common.localMusicPath'] || $t('setting__basic_local_music_path_empty') }}
+    .p
+      base-btn.btn(min @click="handleChangeLocalMusicPath") {{ $t('setting__basic_local_music_path_change_btn') }}
 ThemeSelectorModal(v-model="isShowThemeSelectorModal")
 ThemeEditModal(v-model="isShowThemeEditModal" :theme-id="editThemeId" @submit="handleRefreshTheme")
 play-timeout-modal(v-model="isShowPlayTimeoutModal")
@@ -115,7 +123,7 @@ user-api-modal(v-model="isShowUserApiModal")
 import { computed, ref, watch, reactive, shallowReactive } from '@common/utils/vueTools'
 import { windowSizeList, userApi, isFullscreen, themeId } from '@renderer/store'
 import { langList, useI18n } from '@root/lang'
-import { getSystemFonts } from '@renderer/utils/ipc'
+import { getSystemFonts, showSelectDialog, openDirInExplorer } from '@renderer/utils/ipc'
 import apiSourceInfo from '@renderer/utils/musicSdk/api-source-info'
 import { useTimeout } from '@renderer/core/player/timeoutStop'
 import { dialog } from '@renderer/plugins/Dialog'
@@ -246,6 +254,17 @@ export default {
     }
     const isShowThemeEditModal = ref(false)
 
+    const handleChangeLocalMusicPath = () => {
+      void showSelectDialog({
+        title: t('setting__basic_local_music_path_select_title'),
+        defaultPath: appSetting['common.localMusicPath'] || '',
+        properties: ['openDirectory'],
+      }).then(result => {
+        if (result.canceled) return
+        updateSetting({ 'common.localMusicPath': result.filePaths[0] })
+      })
+    }
+
     const isShowPlayTimeoutModal = ref(false)
     const { timeLabel } = useTimeout()
 
@@ -342,6 +361,8 @@ export default {
       handleSetThemeAuto,
       isShowPlayTimeoutModal,
       timeLabel,
+      handleChangeLocalMusicPath,
+      openDirInExplorer,
       apiSources,
       isShowUserApiModal,
       windowSizeList,
@@ -533,6 +554,10 @@ export default {
       }
     }
   }
+}
+
+.savePath {
+  font-size: 12px;
 }
 
 .sourceLabel {
