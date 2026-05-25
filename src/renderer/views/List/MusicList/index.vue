@@ -43,7 +43,7 @@
           </div>
           <div class="list-item-cell auto name" :aria-label="item.name">
             <span class="select name">{{ item.name }}</span>
-            <span v-if="isShowSource" class="no-select label-source">{{ item.source }}</span>
+            <span v-if="isShowSource" class="no-select label-source">{{ hasLocalMatch(item) ? '✔️' : item.source }}</span>
           </div>
           <div class="list-item-cell" style="flex: 0 0 22%;"><span class="select" :aria-label="item.singer">{{ item.singer }}</span></div>
           <div class="list-item-cell" style="flex: 0 0 22%;"><span class="select" :aria-label="item.meta.albumName">{{ item.meta.albumName }}</span></div>
@@ -75,7 +75,7 @@
           </div>
           <div class="list-item-cell auto name">
             <span class="select name" :aria-label="item.name">{{ item.name }}</span>
-            <span v-if="isShowSource" class="no-select label-source">{{ item.source }}</span>
+            <span v-if="isShowSource" class="no-select label-source">{{ hasLocalMatch(item) ? '✔️' : item.source }}</span>
           </div>
           <div class="list-item-cell" style="flex: 0 0 25%;"><span class="select" :aria-label="item.singer">{{ item.singer }}</span></div>
           <div class="list-item-cell" style="flex: 0 0 28%;"><span class="select" :aria-label="item.meta.albumName">{{ item.meta.albumName }}</span></div>
@@ -106,6 +106,7 @@
 <script>
 import { clipboardWriteText } from '@common/utils/electron'
 import { assertApiSupport } from '@renderer/store/utils'
+import { findMatchInIndex, scanVersion } from '@renderer/core/music/aiLocalMusicScanner'
 import SearchList from './components/SearchList.vue'
 import MusicSortModal from './components/MusicSortModal.vue'
 import MusicToggleModal from './components/MusicToggleModal.vue'
@@ -137,6 +138,11 @@ export default {
   emits: ['show-menu'],
   setup(props, { emit }) {
     const actionButtonsVisible = appSetting['list.actionButtonsVisible']
+
+    const hasLocalMatch = (item) => {
+      void scanVersion.value
+      return findMatchInIndex(item.name, item.singer) !== null
+    }
 
     let scrollIndex = null
     let isAnimation = false
@@ -269,7 +275,6 @@ export default {
     }
     const handleListRightClick = (event) => {
       if (!event.target.classList.contains('select')) return
-      event.stopImmediatePropagation()
       let classList = dom_listContent.value.classList
       classList.add('copying')
       window.requestAnimationFrame(() => {
@@ -348,6 +353,7 @@ export default {
       saveListPosition,
       isShowSource,
       handleRestoreScroll,
+      hasLocalMatch,
 
       actionButtonsVisible,
 
@@ -383,6 +389,7 @@ export default {
       line-height: 1.2;
       opacity: .75;
       display: inline-block;
+      margin-left: auto;
     }
   }
 }

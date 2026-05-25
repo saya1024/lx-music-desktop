@@ -1,6 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { ref } from '@common/utils/vueTools'
 import { musicNameToFileName, getAllPossibleNames, getAudioExts } from '../../../common/utils/aiFileName'
+
+export const scanVersion = ref(0)
 
 export interface LocalFileIndex {
   /** 规范化文件名 → 文件路径的映射 */
@@ -38,6 +41,7 @@ export const scanLocalMusicDir = async(dirPath: string, format: string): Promise
   await scanDir(dirPath, fileMap, audioExts, format, () => { totalFiles++ })
 
   fileIndex = { fileMap, scannedAt: Date.now(), scannedPath: dirPath, totalFiles }
+  scanVersion.value++
   return fileIndex
 }
 
