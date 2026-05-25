@@ -227,10 +227,15 @@ export default {
     const loadAllListData = async() => {
       try {
         const { getListMusics } = await import('@renderer/store/list/action')
-        await Promise.all([
-          getListMusics(loveList.id),
-          ...userLists.map(async l => getListMusics(l.id)),
-        ])
+        const ids = [
+          loveList.id,
+          ...userLists.map(l => l.id),
+        ]
+        for (const id of ids) {
+          try {
+            await getListMusics(id)
+          } catch {}
+        }
       } catch {}
     }
     void loadAllListData()
