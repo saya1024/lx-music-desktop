@@ -1,0 +1,46 @@
+name: Dev Release
+
+# 仅保留手动触发
+on:
+  workflow_dispatch:
+
+env:
+  IS_CI: 'true'
+
+jobs:
+  Windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node Env
+        uses: ./.github/actions/setup
+
+      - name: Build src code
+        run: |
+          git status --porcelain
+          npm run build
+
+      - name: Release package
+        run: |
+          npm run publish:win:7z:x64
+          npm run publish:win:setup:x64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate file MD5
+        run: |
+          cd build
+          Get-FileHash *.exe,*.7z -Algorithm MD5 | Format-List
+
+      # 将生成的 x64 文件持久化到 GitHub 服务器上
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-packages-dev-${{ github.run_number }}
+          path: |
+            build/*.exe
+            build/*.7z
+          if-no-files-found: error
