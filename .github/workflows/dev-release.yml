@@ -15,8 +15,14 @@ jobs:
       - name: Check out git repository
         uses: actions/checkout@v4
 
+      - name: Get npm cache directory
+        shell: pwsh
+        run: echo "NPM_CACHE=$(npm config get cache)" >> $env:GITHUB_ENV
+
       - name: Setup Node Env
         uses: ./.github/actions/setup
+        env:
+          NPM_CACHE: ${{ env.NPM_CACHE }}
 
       - name: Build src code
         run: |
