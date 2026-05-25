@@ -2,6 +2,7 @@ import { encodePath } from '@common/utils/common'
 import { updateListMusics } from '@renderer/store/list/action'
 import { saveLyric, saveMusicUrl } from '@renderer/utils/ipc'
 import { getLocalFilePath } from '@renderer/utils/music'
+import { findMatchInIndex } from './aiLocalMusicScanner'
 
 import {
   buildLyricInfo,
@@ -73,6 +74,8 @@ export const getMusicUrl = async({ musicInfo, isRefresh, allowToggleSource = tru
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
 }): Promise<string> => {
   if (!isRefresh) {
+    const matchedPath = findMatchInIndex(musicInfo.name, musicInfo.singer)
+    if (matchedPath) return encodePath(matchedPath)
     const path = await getLocalFilePath(musicInfo)
     if (path) return encodePath(path)
   }
