@@ -481,6 +481,7 @@
   "setting__list_click_action": "Automatically switch to current list when double-clicking a song in the list (Only valid for \"Playlists\" and \"Charts\" page)",
   "setting__list_scroll": "Remember position of scroll bar of playlist (Only valid for \"Your Library\" page)",
   "setting__list_source": "Show which music streaming service the song is from (Only valid for \"Your Library\" page)",
+  "setting__list_show_local_file_count": "Show local file match count in list",
   "setting__network": "Network",
   "setting__network_proxy_host": "Host",
   "setting__network_proxy_password": "Password",

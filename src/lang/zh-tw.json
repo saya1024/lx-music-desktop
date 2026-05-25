@@ -481,6 +481,7 @@
   "setting__list_click_action": "雙擊清單裡的歌曲時自動切換到目前清單播放（僅對「歌單」、「排行榜」有效）",
   "setting__list_scroll": "記住播放清單滾動條位置（僅對「我的清單」有效）",
   "setting__list_source": "顯示歌曲來自哪個音樂串流平台（僅對「我的清單」有效）",
+  "setting__list_show_local_file_count": "在清單中顯示本地檔案匹配計數",
   "setting__network": "網路設定",
   "setting__network_proxy_host": "主機",
   "setting__network_proxy_password": "密碼",

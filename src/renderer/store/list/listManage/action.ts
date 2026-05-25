@@ -5,6 +5,7 @@ import {
   loveList,
   tempList,
   userLists,
+  listDataVersion,
 } from './state'
 import { overwriteListPosition, overwriteListUpdateInfo, removeListPosition, removeListUpdateInfo } from '@renderer/utils/data'
 import { LIST_IDS } from '@common/constants'
@@ -18,6 +19,7 @@ export const setUserLists = (lists: LX.List.UserListInfo[]) => {
 export const setMusicList = (listId: string, musicList: LX.Music.MusicInfo[]) => {
   const list = markRawList(musicList)
   allMusicList.set(listId, list)
+  listDataVersion.value++
   return list
 }
 
@@ -31,9 +33,11 @@ const overwriteMusicList = (id: string, list: LX.Music.MusicInfo[]) => {
   } else {
     allMusicList.set(id, list)
   }
+  listDataVersion.value++
 }
 const removeMusicList = (id: string) => {
   allMusicList.delete(id)
+  listDataVersion.value++
 }
 
 const createUserList = ({

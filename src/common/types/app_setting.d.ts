@@ -501,6 +501,11 @@ declare global {
       'list.actionButtonsVisible': boolean
 
       /**
+       * 是否在列表中显示本地文件匹配计数
+       */
+      'list.showLocalFileCount': boolean
+
+      /**
        * 是否启用下载功能
        */
       'download.enable': boolean

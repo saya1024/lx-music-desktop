@@ -1,7 +1,9 @@
 import { LIST_IDS } from '@common/constants'
-import { markRaw, reactive } from '@common/utils/vueTools'
+import { markRaw, reactive, ref } from '@common/utils/vueTools'
 
 export const allMusicList: Map<string, LX.Music.MusicInfo[]> = markRaw(new Map())
+
+export const listDataVersion = ref(0)
 
 export const defaultList = markRaw<LX.List.MyDefaultListInfo>({
   id: LIST_IDS.DEFAULT,

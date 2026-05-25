@@ -6,6 +6,7 @@ export {
   loveList,
   tempList,
   userLists,
+  listDataVersion,
 } from '@renderer/store/list/listManage'
 // import { reactive, ref, markRaw, Ref } from '@common/utils/vueTools'
 

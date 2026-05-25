@@ -481,6 +481,7 @@
   "setting__list_click_action": "双击列表里的歌曲时自动切换到当前列表播放（仅对「歌单」和「排行榜」有效）",
   "setting__list_scroll": "记住播放列表滚动条位置（仅对「我的列表」有效）",
   "setting__list_source": "显示歌曲来源平台（仅对「我的列表」有效）",
+  "setting__list_show_local_file_count": "在列表中显示本地文件匹配计数",
   "setting__network": "网络设置",
   "setting__network_proxy_host": "主机",
   "setting__network_proxy_password": "密码",

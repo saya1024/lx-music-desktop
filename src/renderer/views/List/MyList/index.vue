@@ -30,7 +30,7 @@
           <transition name="list-active">
             <svg-icon v-if="defaultList.id == listId" name="angle-right-solid" :class="$style.activeIcon" />
           </transition>
-          {{ $t(defaultList.name) }}
+          <span :class="$style.listsName">{{ $t(defaultList.name) }}</span>
         </span>
       </li>
       <li
@@ -42,7 +42,8 @@
           <transition name="list-active">
             <svg-icon v-if="loveList.id == listId" name="angle-right-solid" :class="$style.activeIcon" />
           </transition>
-          {{ $t(loveList.name) }}
+          <span :class="$style.listsName">{{ $t(loveList.name) }}</span>
+          <span v-if="showLocalFileCount && getListLocalFileCount(loveList.id)" :class="$style.listsCount">{{ getListLocalFileCount(loveList.id) }}</span>
         </span>
       </li>
       <li
@@ -55,7 +56,8 @@
           <transition name="list-active">
             <svg-icon v-if="item.id == listId" name="angle-right-solid" :class="$style.activeIcon" />
           </transition>
-          {{ item.name }}
+          <span :class="$style.listsName">{{ item.name }}</span>
+          <span v-if="showLocalFileCount && getListLocalFileCount(item.id)" :class="$style.listsCount">{{ getListLocalFileCount(item.id) }}</span>
         </span>
         <base-input
           :class="$style.listsInput" type="text" :value="item.name"
@@ -86,10 +88,12 @@ import DuplicateMusicModal from './components/DuplicateMusicModal.vue'
 import ListSortModal from './components/ListSortModal.vue'
 import ListUpdateModal from './components/ListUpdateModal.vue'
 
-import { defaultList, loveList, userLists, fetchingListStatus } from '@renderer/store/list/state'
+import { defaultList, loveList, userLists, fetchingListStatus, allMusicList, listDataVersion } from '@renderer/store/list/state'
+import { findMatchInIndex, scanVersion } from '@renderer/core/music/aiLocalMusicScanner'
+import { appSetting } from '@renderer/store/setting'
 import { removeUserList } from '@renderer/store/list/action'
 
-import { ref, watch } from '@common/utils/vueTools'
+import { ref, watch, computed } from '@common/utils/vueTools'
 import { useRouter } from '@common/utils/vueRouter'
 import { LIST_IDS } from '@common/constants'
 
@@ -205,6 +209,35 @@ export default {
 
     const { isModDown } = useDarg({ dom_lists_list, handleMenuClick, handleSaveListName })
 
+    const getListLocalFileCount = (listId) => {
+      void listDataVersion.value
+      void scanVersion.value
+      const songs = allMusicList.get(listId)
+      if (!songs?.length) return null
+      const total = songs.length
+      let matched = 0
+      for (const song of songs) {
+        if (song.source != 'local' && findMatchInIndex(song.name, song.singer)) matched++
+      }
+      return total > 0 ? `${matched}/${total}` : '0/0'
+    }
+
+    const showLocalFileCount = computed(() => appSetting['list.showLocalFileCount'])
+
+    const loadAllListData = async() => {
+      try {
+        const { getListMusics } = await import('@renderer/store/list/action')
+        await Promise.all([
+          getListMusics(loveList.id),
+          ...userLists.map(async l => getListMusics(l.id)),
+        ])
+      } catch {}
+    }
+    void loadAllListData()
+
+    watch(() => userLists.length, () => {
+      void loadAllListData()
+    })
 
     watch(() => props.listId, (listId) => {
       saveListPrevSelectId(listId)
@@ -244,6 +277,8 @@ export default {
       handleListToggle,
       isModDown,
       hideMenu: handleMenuClick,
+      showLocalFileCount,
+      getListLocalFileCount,
     }
   },
 }
@@ -368,12 +403,24 @@ export default {
   vertical-align: -0.05em;
 }
 .listsLabel {
-  display: block;
+  display: flex;
+  align-items: center;
   height: @lists-item-height;
   padding: 0 10px;
   font-size: 13px;
   line-height: @lists-item-height;
+}
+.listsName {
   .mixin-ellipsis-1();
+  flex: 1;
+  min-width: 0;
+}
+.listsCount {
+  flex: none;
+  font-size: 11px;
+  opacity: .6;
+  margin-left: 4px;
+  white-space: nowrap;
 }
 .listsInput {
   width: 100%;
