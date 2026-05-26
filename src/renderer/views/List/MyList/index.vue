@@ -217,7 +217,7 @@ export default {
       const total = songs.length
       let matched = 0
       for (const song of songs) {
-        if (song.source != 'local' && findMatchInIndex(song.name, song.singer)) matched++
+        if (findMatchInIndex(song.name, song.singer)) matched++
       }
       return total > 0 ? `${matched}/${total}` : '0/0'
     }
