@@ -28,7 +28,7 @@
         @scroll="saveListPosition" @contextmenu.capture="handleListRightClick"
       >
         <div
-          class="list-item" :class="[{ [$style.active]: playerInfo.isPlayList && playerInfo.playIndex === index }, { selected: selectedIndex == index || rightClickSelectedIndex == index }, { active: selectedList.includes(item) }, { disabled: !assertApiSupport(item.source) }]"
+          class="list-item" :class="[{ [$style.active]: playerInfo.isPlayList && playerInfo.playIndex === index }, { selected: selectedIndex == index || rightClickSelectedIndex == index }, { active: selectedList.includes(item) }, { disabled: !assertApiSupport(item.source) && !hasLocalMatch(item) }]"
           @click="handleListItemClick($event, index)" @contextmenu="handleListItemRightClick($event, index)"
         >
           <div class="list-item-cell no-select" :class="$style.num" style="flex: 0 0 5%;">
@@ -44,7 +44,7 @@
           <div class="list-item-cell auto name" :aria-label="item.name">
             <span class="select name">{{ item.name }}</span>
             <span v-if="isShowSource" class="no-select label-source">
-              <template v-if="listId !== LIST_IDS.LOVE && isInLoveList(item)">❤️ </template>
+              <template v-if="isInLoveList(item)">❤️ </template>
               {{ hasLocalMatch(item) ? '⭐' : item.source }}
             </span>
           </div>
@@ -63,7 +63,7 @@
       >
         <div
           class="list-item"
-          :class="[{ [$style.active]: playerInfo.isPlayList && playerInfo.playIndex === index }, { selected: selectedIndex == index || rightClickSelectedIndex == index }, { active: selectedList.includes(item) }, { disabled: !assertApiSupport(item.source) }]"
+          :class="[{ [$style.active]: playerInfo.isPlayList && playerInfo.playIndex === index }, { selected: selectedIndex == index || rightClickSelectedIndex == index }, { active: selectedList.includes(item) }, { disabled: !assertApiSupport(item.source) && !hasLocalMatch(item) }]"
           @click="handleListItemClick($event, index)" @contextmenu="handleListItemRightClick($event, index)"
         >
           <div class="list-item-cell no-select" :class="$style.num" style="flex: 0 0 5%;">
@@ -79,7 +79,7 @@
           <div class="list-item-cell auto name">
             <span class="select name" :aria-label="item.name">{{ item.name }}</span>
             <span v-if="isShowSource" class="no-select label-source">
-              <template v-if="listId !== LIST_IDS.LOVE && isInLoveList(item)">❤️ </template>
+              <template v-if="isInLoveList(item)">❤️ </template>
               {{ hasLocalMatch(item) ? '⭐' : item.source }}
             </span>
           </div>
@@ -130,6 +130,7 @@ import useMusicToggle from './useMusicToggle'
 import { appSetting } from '@renderer/store/setting'
 import { allMusicList, listDataVersion } from '@renderer/store/list/listManage/state'
 import { LIST_IDS } from '@common/constants'
+import { addListMusics, removeListMusics } from '@renderer/store/list/action'
 export default {
   name: 'MusicList',
   components: {
@@ -236,6 +237,26 @@ export default {
       handleRemoveMusic,
     } = useMusicActions({ props, list, removeAllSelect, selectedList })
 
+    const handleToggleLove = (index) => {
+      const music = list.value[index]
+      if (!music) return
+      const loveSongs = allMusicList.get(LIST_IDS.LOVE) ?? []
+      if (loveSongs.some(s => s.id === music.id)) {
+        const idx = loveSongs.findIndex(s => s.id === music.id)
+        if (idx > -1) loveSongs.splice(idx, 1)
+        listDataVersion.value++
+        void removeListMusics({ listId: LIST_IDS.LOVE, ids: [music.id] })
+      } else {
+        if (appSetting['list.addMusicLocationType'] === 'top') {
+          loveSongs.unshift(music)
+        } else {
+          loveSongs.push(music)
+        }
+        listDataVersion.value++
+        void addListMusics(LIST_IDS.LOVE, [music])
+      }
+    }
+
     const {
       menus,
       menuLocation,
@@ -258,6 +279,7 @@ export default {
       handleCopyName,
       handleDislikeMusic,
       handleRemoveMusic,
+      handleToggleLove,
     })
 
     const {

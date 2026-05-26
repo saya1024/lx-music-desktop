@@ -2,6 +2,8 @@ import { computed, ref, shallowReactive, reactive, nextTick } from '@common/util
 import musicSdk from '@renderer/utils/musicSdk'
 import { useI18n } from '@renderer/plugins/i18n'
 import { hasDislike } from '@renderer/core/dislikeList'
+import { allMusicList } from '@renderer/store/list/listManage/state'
+import { LIST_IDS } from '@common/constants'
 
 export default ({
   assertApiSupport,
@@ -19,6 +21,7 @@ export default ({
   handleCopyName,
   handleDislikeMusic,
   handleRemoveMusic,
+  handleToggleLove,
 }) => {
   const itemMenuControl = reactive({
     play: true,
@@ -34,6 +37,7 @@ export default ({
     remove: true,
     sourceDetail: true,
   })
+  const isInLoveList = ref(false)
   const t = useI18n()
   const menuLocation = shallowReactive({ x: 0, y: 0 })
   const isShowItemMenu = ref(false)
@@ -49,6 +53,10 @@ export default ({
         name: t('list__download'),
         action: 'download',
         disabled: !itemMenuControl.download,
+      },
+      {
+        name: isInLoveList.value ? '取消收藏' : '收藏',
+        action: 'toggleLove',
       },
       {
         name: t('list__play_later'),
@@ -111,6 +119,9 @@ export default ({
 
     itemMenuControl.dislike = !hasDislike(musicInfo)
 
+    const loveSongs = allMusicList.get(LIST_IDS.LOVE)
+    isInLoveList.value = loveSongs ? loveSongs.some(s => s.id === musicInfo.id) : false
+
     menuLocation.x = event.pageX
     menuLocation.y = event.pageY
 
@@ -154,6 +165,9 @@ export default ({
         break
       case 'download':
         handleShowDownloadModal(index)
+        break
+      case 'toggleLove':
+        handleToggleLove(index)
         break
       case 'search':
         handleSearch(index)
