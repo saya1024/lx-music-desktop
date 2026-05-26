@@ -38,7 +38,7 @@ import {
   playMusicInfo,
 } from '@renderer/store/player/state'
 import { currentLocalFilePath } from '@renderer/core/music/aiPlayStatus'
-import { allMusicList, userLists, defaultList, loveList, listDataVersion } from '@renderer/store/list/listManage/state'
+import { allMusicList, userLists, listDataVersion } from '@renderer/store/list/listManage/state'
 import { LIST_IDS } from '@common/constants'
 import {
   setShowPlayerDetail,
@@ -107,7 +107,7 @@ export default {
       const music = playMusicInfo.musicInfo
       if (!music) return []
       void listDataVersion.value
-      const names: string[] = []
+      const names = []
       for (const [listId, songs] of allMusicList) {
         if (listId === LIST_IDS.TEMP) continue
         if (songs.some(s => s.id === music.id)) {
