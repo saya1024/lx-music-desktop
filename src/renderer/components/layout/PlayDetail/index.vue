@@ -15,8 +15,7 @@ transition(enter-active-class="animated slideInRight" leave-active-class="animat
             p {{ $t('player__music_name') }}{{ musicInfo.name }}
             p {{ $t('player__music_singer') }}{{ musicInfo.singer }}
             p(v-if="musicInfo.album") {{ $t('player__music_album') }}{{ musicInfo.album }}
-            p(v-if="currentLocalFilePath" :class="$style.localPath") {{ $t('player__local_file') }}{{ currentLocalFilePath }}
-            p(v-if="containingListNames.length") {{ $t('player__in_lists') }}{{ containingListNames.join('、') }}
+            p(v-if="containingListInfo.length") {{ inListsLabel }}{{ containingListInfo.join('、') }}
 
       transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
         LyricPlayer(v-if="visibled")
@@ -37,7 +36,6 @@ import {
   musicInfo,
   playMusicInfo,
 } from '@renderer/store/player/state'
-import { currentLocalFilePath } from '@renderer/core/music/aiPlayStatus'
 import { allMusicList, userLists, listDataVersion } from '@renderer/store/list/listManage/state'
 import { LIST_IDS } from '@common/constants'
 import {
@@ -102,24 +100,27 @@ export default {
       (isFullscreen ? registerAutoHideMounse : unregisterAutoHideMounse)()
     })
 
-    const t = window.i18n?.t ?? (s => s)
-    const containingListNames = computed(() => {
+    const safeT = (key) => {
+      try { return window.i18n?.t ? window.i18n.t(key) : key } catch { return key }
+    }
+
+    const containingListInfo = computed(() => {
       const music = playMusicInfo.musicInfo
       if (!music) return []
       void listDataVersion.value
       const names = []
-      for (const [listId, songs] of allMusicList) {
-        if (listId === LIST_IDS.TEMP) continue
-        if (songs.some(s => s.id === music.id)) {
-          let name
-          if (listId === LIST_IDS.LOVE) name = t('list__name_love')
-          else if (listId === LIST_IDS.DEFAULT) name = t('list__name_default')
-          else name = userLists.find(l => l.id === listId)?.name ?? ''
-          if (name) names.push(name)
-        }
+      const musicId = music.id
+      const hasSong = (listId) => allMusicList.get(listId)?.some(s => s.id === musicId)
+      const checkAndPush = (listId, name) => { if (hasSong(listId) && name) names.push(name) }
+      checkAndPush(LIST_IDS.DEFAULT, safeT('list__name_default'))
+      checkAndPush(LIST_IDS.LOVE, safeT('list__name_love'))
+      for (const list of userLists) {
+        checkAndPush(list.id, list.name)
       }
       return names
     })
+
+    const inListsLabel = computed(() => safeT('player__in_lists'))
 
     return {
       appSetting,
@@ -127,8 +128,8 @@ export default {
       isShowPlayerDetail,
       isShowPlayComment,
       musicInfo,
-      currentLocalFilePath,
-      containingListNames,
+      containingListInfo,
+      inListsLabel,
       hide,
       handleContextMenu,
       hideComment,

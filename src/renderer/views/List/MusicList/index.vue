@@ -406,6 +406,7 @@ export default {
       opacity: .75;
       display: inline-block;
       margin-left: auto;
+      white-space: nowrap;
     }
   }
 }
