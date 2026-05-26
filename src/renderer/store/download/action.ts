@@ -286,6 +286,11 @@ const handleStartTask = async(downloadInfo: LX.Download.ListItem) => {
         void window.lx.worker.download.removeTask(downloadInfo.id)
         runingTask.delete(downloadInfo.id)
         setStatus(downloadInfo, DOWNLOAD_STATUS.COMPLETED)
+        if (appSetting['common.localMusicPath']) {
+          void import('@renderer/core/music/aiLocalMusicScanner').then(({ addFileToIndex }) => {
+            void addFileToIndex(filePath, appSetting['download.fileName'])
+          })
+        }
         void checkStartTask()
         break
       case 'refreshUrl':

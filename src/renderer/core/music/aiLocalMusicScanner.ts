@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { ref } from '@common/utils/vueTools'
-import { musicNameToFileName, getAllPossibleNames, getAudioExts } from '../../../common/utils/aiFileName'
+import { musicNameToFileName, getAllPossibleNames, getAudioExts, replaceInvalidFileNameChars } from '../../../common/utils/aiFileName'
 
 export const scanVersion = ref(0)
 
@@ -77,11 +77,17 @@ const scanDir = async(
   }
 }
 
+const addKey = (fileMap: Map<string, string>, key: string, filePath: string) => {
+  if (key && !fileMap.has(key)) fileMap.set(key, filePath)
+}
+
 const indexFile = async(
   filePath: string,
   format: string,
   fileMap: Map<string, string>,
 ): Promise<void> => {
+  const baseName = path.basename(filePath).replace(/\.[^.]+$/, '')
+
   try {
     const { parseFile } = await import('music-metadata')
     const metadata = await parseFile(filePath)
@@ -90,16 +96,15 @@ const indexFile = async(
       ? metadata.common.artists.map(a => a.trim()).join('、')
       : ''
 
-    const key = name
-      ? musicNameToFileName(name, singer, format)
-      : path.basename(filePath).replace(/\.[^.]+$/, '')
-
-    if (!fileMap.has(key)) {
-      fileMap.set(key, filePath)
+    if (name) {
+      addKey(fileMap, musicNameToFileName(name, singer, format), filePath)
+      addKey(fileMap, replaceInvalidFileNameChars(name), filePath)
     }
   } catch {
     // skip files that can't be parsed
   }
+
+  addKey(fileMap, baseName, filePath)
 }
 
 /**
@@ -120,6 +125,15 @@ export const findMatchInIndex = (
     if (path) return path
   }
   return null
+}
+
+/**
+ * 将单个文件加入索引（下载完成后调用）
+ */
+export const addFileToIndex = async(filePath: string, format: string): Promise<void> => {
+  if (!fileIndex) return
+  await indexFile(filePath, format, fileIndex.fileMap)
+  scanVersion.value++
 }
 
 /**
