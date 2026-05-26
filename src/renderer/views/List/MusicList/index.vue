@@ -45,7 +45,7 @@
             <span class="select name">{{ item.name }}</span>
             <span v-if="isShowSource" class="no-select label-source">
               <template v-if="listId !== LIST_IDS.LOVE && isInLoveList(item)">❤️ </template>
-              {{ hasLocalMatch(item) ? '✔️' : item.source }}
+              {{ hasLocalMatch(item) ? '⭐' : item.source }}
             </span>
           </div>
           <div class="list-item-cell" style="flex: 0 0 22%;"><span class="select" :aria-label="item.singer">{{ item.singer }}</span></div>
@@ -80,7 +80,7 @@
             <span class="select name" :aria-label="item.name">{{ item.name }}</span>
             <span v-if="isShowSource" class="no-select label-source">
               <template v-if="listId !== LIST_IDS.LOVE && isInLoveList(item)">❤️ </template>
-              {{ hasLocalMatch(item) ? '✔️' : item.source }}
+              {{ hasLocalMatch(item) ? '⭐' : item.source }}
             </span>
           </div>
           <div class="list-item-cell" style="flex: 0 0 25%;"><span class="select" :aria-label="item.singer">{{ item.singer }}</span></div>
