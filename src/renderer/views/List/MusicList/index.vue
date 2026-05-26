@@ -43,7 +43,10 @@
           </div>
           <div class="list-item-cell auto name" :aria-label="item.name">
             <span class="select name">{{ item.name }}</span>
-            <span v-if="isShowSource" class="no-select label-source">{{ hasLocalMatch(item) ? '✔️' : item.source }}</span>
+            <span v-if="isShowSource" class="no-select label-source">
+              <template v-if="listId !== LIST_IDS.LOVE && isInLoveList(item)">❤️ </template>
+              {{ hasLocalMatch(item) ? '✔️' : item.source }}
+            </span>
           </div>
           <div class="list-item-cell" style="flex: 0 0 22%;"><span class="select" :aria-label="item.singer">{{ item.singer }}</span></div>
           <div class="list-item-cell" style="flex: 0 0 22%;"><span class="select" :aria-label="item.meta.albumName">{{ item.meta.albumName }}</span></div>
@@ -75,7 +78,10 @@
           </div>
           <div class="list-item-cell auto name">
             <span class="select name" :aria-label="item.name">{{ item.name }}</span>
-            <span v-if="isShowSource" class="no-select label-source">{{ hasLocalMatch(item) ? '✔️' : item.source }}</span>
+            <span v-if="isShowSource" class="no-select label-source">
+              <template v-if="listId !== LIST_IDS.LOVE && isInLoveList(item)">❤️ </template>
+              {{ hasLocalMatch(item) ? '✔️' : item.source }}
+            </span>
           </div>
           <div class="list-item-cell" style="flex: 0 0 25%;"><span class="select" :aria-label="item.singer">{{ item.singer }}</span></div>
           <div class="list-item-cell" style="flex: 0 0 28%;"><span class="select" :aria-label="item.meta.albumName">{{ item.meta.albumName }}</span></div>
@@ -122,6 +128,8 @@ import useSearch from './useSearch'
 import useListScroll from './useListScroll'
 import useMusicToggle from './useMusicToggle'
 import { appSetting } from '@renderer/store/setting'
+import { allMusicList, listDataVersion } from '@renderer/store/list/listManage/state'
+import { LIST_IDS } from '@common/constants'
 export default {
   name: 'MusicList',
   components: {
@@ -142,6 +150,12 @@ export default {
     const hasLocalMatch = (item) => {
       void scanVersion.value
       return findMatchInIndex(item.name, item.singer) !== null
+    }
+
+    const isInLoveList = (item) => {
+      void listDataVersion.value
+      const loveSongs = allMusicList.get(LIST_IDS.LOVE)
+      return loveSongs ? loveSongs.some(s => s.id === item.id) : false
     }
 
     let scrollIndex = null
@@ -354,6 +368,8 @@ export default {
       isShowSource,
       handleRestoreScroll,
       hasLocalMatch,
+      isInLoveList,
+      LIST_IDS,
 
       actionButtonsVisible,
 

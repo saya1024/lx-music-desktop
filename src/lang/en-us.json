@@ -223,6 +223,7 @@
   "player__getting_url": "Getting music link...",
   "player__getting_url_delay_retry": "The server is busy. Try again in {time} seconds...",
   "player__hide_detail_tip": "Hide detail page\n(Right-click in the app window to quickly hide the detail page)",
+  "player__in_lists": "In lists: ",
   "player__loading": "Music loading...",
   "player__local_file": "Local file: ",
   "player__music_album": "Album: ",

@@ -223,6 +223,7 @@
   "player__getting_url": "歌曲連結獲取中...",
   "player__getting_url_delay_retry": "服務繁忙，{time} 秒後重試...",
   "player__hide_detail_tip": "隱藏詳情頁（介面內右鍵雙擊可快速隱藏詳情頁）",
+  "player__in_lists": "所屬清單：",
   "player__loading": "音樂載入中...",
   "player__local_file": "本地檔案：",
   "player__music_album": "專輯：",

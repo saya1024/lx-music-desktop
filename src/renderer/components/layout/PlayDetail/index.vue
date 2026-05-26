@@ -16,6 +16,7 @@ transition(enter-active-class="animated slideInRight" leave-active-class="animat
             p {{ $t('player__music_singer') }}{{ musicInfo.singer }}
             p(v-if="musicInfo.album") {{ $t('player__music_album') }}{{ musicInfo.album }}
             p(v-if="currentLocalFilePath" :class="$style.localPath") {{ $t('player__local_file') }}{{ currentLocalFilePath }}
+            p(v-if="containingListNames.length") {{ $t('player__in_lists') }}{{ containingListNames.join('、') }}
 
       transition(enter-active-class="animated fadeIn" leave-active-class="animated fadeOut")
         LyricPlayer(v-if="visibled")
@@ -28,7 +29,7 @@ transition(enter-active-class="animated slideInRight" leave-active-class="animat
 
 
 <script>
-import { ref, watch } from '@common/utils/vueTools'
+import { ref, watch, computed } from '@common/utils/vueTools'
 import { isFullscreen } from '@renderer/store'
 import {
   isShowPlayerDetail,
@@ -37,6 +38,8 @@ import {
   playMusicInfo,
 } from '@renderer/store/player/state'
 import { currentLocalFilePath } from '@renderer/core/music/aiPlayStatus'
+import { allMusicList, userLists, defaultList, loveList, listDataVersion } from '@renderer/store/list/listManage/state'
+import { LIST_IDS } from '@common/constants'
 import {
   setShowPlayerDetail,
   setShowPlayComment,
@@ -99,6 +102,24 @@ export default {
       (isFullscreen ? registerAutoHideMounse : unregisterAutoHideMounse)()
     })
 
+    const t = window.i18n?.t ?? (s => s)
+    const containingListNames = computed(() => {
+      const music = playMusicInfo.musicInfo
+      if (!music) return []
+      void listDataVersion.value
+      const names: string[] = []
+      for (const [listId, songs] of allMusicList) {
+        if (listId === LIST_IDS.TEMP) continue
+        if (songs.some(s => s.id === music.id)) {
+          let name
+          if (listId === LIST_IDS.LOVE) name = t('list__name_love')
+          else if (listId === LIST_IDS.DEFAULT) name = t('list__name_default')
+          else name = userLists.find(l => l.id === listId)?.name ?? ''
+          if (name) names.push(name)
+        }
+      }
+      return names
+    })
 
     return {
       appSetting,
@@ -107,6 +128,7 @@ export default {
       isShowPlayComment,
       musicInfo,
       currentLocalFilePath,
+      containingListNames,
       hide,
       handleContextMenu,
       hideComment,
