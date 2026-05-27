@@ -100,6 +100,7 @@ export const findMatchInIndex = (
 ): string | null => {
   if (!fileIndex) return null
   const possibleKeys = getAllPossibleNames(name, singer)
+  if (name == 'Möbius') console.log(`[mylog] ${name} \n${possibleKeys.join('\n')}`)
   for (const key of possibleKeys) {
     const path = fileIndex.fileMap.get(key)
     if (path) return path
