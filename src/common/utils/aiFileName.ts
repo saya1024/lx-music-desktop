@@ -1,4 +1,4 @@
-import { formatMusicName, clipNameLength, clipFileNameLength } from './tools'
+import { formatMusicName } from './tools'
 
 const AUDIO_EXTS = ['.mp3', '.flac', '.wav', '.ape', '.ogg', '.m4a', '.wma']
 
@@ -33,7 +33,7 @@ export const replaceInvalidFileNameChars = (name: string): string => {
  * @param format 命名格式，如 '歌名 - 歌手'
  */
 export const musicNameToFileName = (name: string, singer: string, format: string): string => {
-  return replaceInvalidFileNameChars(clipFileNameLength(formatMusicName(format, name, clipNameLength(singer))))
+  return replaceInvalidFileNameChars(formatMusicName(format, name, singer))
 }
 
 const FORMATS = [

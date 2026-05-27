@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { ref } from '@common/utils/vueTools'
-import { musicNameToFileName, getAllPossibleNames, getAudioExts, replaceInvalidFileNameChars } from '../../../common/utils/aiFileName'
+import { getAllPossibleNames, getAudioExts } from '../../../common/utils/aiFileName'
 
 export const scanVersion = ref(0)
 
@@ -26,9 +26,8 @@ export const getFileIndex = (): Readonly<LocalFileIndex | null> => fileIndex
 /**
  * 递归扫描目录下的所有音频文件
  * @param dirPath 要扫描的目录路径
- * @param format 命名格式（来自 appSetting['download.fileName']）
  */
-export const scanLocalMusicDir = async(dirPath: string, format: string): Promise<LocalFileIndex> => {
+export const scanLocalMusicDir = async(dirPath: string): Promise<LocalFileIndex> => {
   const fileMap = new Map<string, string>()
   const audioExts = getAudioExts()
 
@@ -38,7 +37,7 @@ export const scanLocalMusicDir = async(dirPath: string, format: string): Promise
   }
 
   let totalFiles = 0
-  await scanDir(dirPath, fileMap, audioExts, format, () => { totalFiles++ })
+  await scanDir(dirPath, fileMap, audioExts, () => { totalFiles++ })
 
   fileIndex = { fileMap, scannedAt: Date.now(), scannedPath: dirPath, totalFiles }
   scanVersion.value++
@@ -49,7 +48,6 @@ const scanDir = async(
   dirPath: string,
   fileMap: Map<string, string>,
   audioExts: string[],
-  format: string,
   onFileFound: () => void,
 ): Promise<void> => {
   let entries: string[]
@@ -64,12 +62,12 @@ const scanDir = async(
     try {
       const stat = await fs.promises.stat(fullPath)
       if (stat.isDirectory()) {
-        await scanDir(fullPath, fileMap, audioExts, format, onFileFound)
+        await scanDir(fullPath, fileMap, audioExts, onFileFound)
       } else if (stat.isFile()) {
         const ext = path.extname(entry).toLowerCase()
         if (!audioExts.includes(ext)) continue
         onFileFound()
-        await indexFile(fullPath, format, fileMap)
+        indexFile(fullPath, fileMap)
       }
     } catch {
       // skip files that can't be accessed
@@ -81,29 +79,11 @@ const addKey = (fileMap: Map<string, string>, key: string, filePath: string) => 
   if (key && !fileMap.has(key)) fileMap.set(key, filePath)
 }
 
-const indexFile = async(
+const indexFile = (
   filePath: string,
-  format: string,
   fileMap: Map<string, string>,
-): Promise<void> => {
-  const baseName = path.basename(filePath).replace(/\.[^.]+$/, '')
-
-  try {
-    const { parseFile } = await import('music-metadata')
-    const metadata = await parseFile(filePath)
-    const name = (metadata.common.title ?? '').trim()
-    const singer = metadata.common.artists?.length
-      ? metadata.common.artists.map(a => a.trim()).join('、')
-      : ''
-
-    if (name) {
-      addKey(fileMap, musicNameToFileName(name, singer, format), filePath)
-      addKey(fileMap, replaceInvalidFileNameChars(name), filePath)
-    }
-  } catch {
-    // skip files that can't be parsed
-  }
-
+): void => {
+  const baseName = path.parse(filePath).name
   addKey(fileMap, baseName, filePath)
 }
 
@@ -130,9 +110,9 @@ export const findMatchInIndex = (
 /**
  * 将单个文件加入索引（下载完成后调用）
  */
-export const addFileToIndex = async(filePath: string, format: string): Promise<void> => {
+export const addFileToIndex = (filePath: string): void => {
   if (!fileIndex) return
-  await indexFile(filePath, format, fileIndex.fileMap)
+  indexFile(filePath, fileIndex.fileMap)
   scanVersion.value++
 }
 

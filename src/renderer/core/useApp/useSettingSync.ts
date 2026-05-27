@@ -95,14 +95,14 @@ export default () => {
     sync.client.host = host
   })
 
-  watch(() => [appSetting['common.localMusicPath'], appSetting['download.fileName']], ([newPath, format]) => {
+  watch(() => appSetting['common.localMusicPath'], newPath => {
     if (newPath) {
-      import('@renderer/core/music/aiLocalMusicScanner').then(({ scanLocalMusicDir, clearFileIndex }) => {
+      void import('@renderer/core/music/aiLocalMusicScanner').then(({ scanLocalMusicDir, clearFileIndex }) => {
         clearFileIndex()
-        scanLocalMusicDir(newPath, format)
+        scanLocalMusicDir(newPath)
       })
     } else {
-      import('@renderer/core/music/aiLocalMusicScanner').then(({ clearFileIndex }) => {
+      void import('@renderer/core/music/aiLocalMusicScanner').then(({ clearFileIndex }) => {
         clearFileIndex()
       })
     }

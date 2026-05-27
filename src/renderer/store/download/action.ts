@@ -288,7 +288,7 @@ const handleStartTask = async(downloadInfo: LX.Download.ListItem) => {
         setStatus(downloadInfo, DOWNLOAD_STATUS.COMPLETED)
         if (appSetting['common.localMusicPath']) {
           void import('@renderer/core/music/aiLocalMusicScanner').then(({ addFileToIndex }) => {
-            void addFileToIndex(filePath, appSetting['download.fileName'])
+            void addFileToIndex(filePath)
           })
         }
         void checkStartTask()

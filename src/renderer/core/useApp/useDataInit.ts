@@ -59,7 +59,7 @@ export default () => {
 
     if (appSetting['common.localMusicPath']) {
       const { scanLocalMusicDir } = await import('@renderer/core/music/aiLocalMusicScanner')
-      scanLocalMusicDir(appSetting['common.localMusicPath'], appSetting['download.fileName'])
+      scanLocalMusicDir(appSetting['common.localMusicPath'])
     }
   }
 }
